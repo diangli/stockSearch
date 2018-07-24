@@ -1,0 +1,244 @@
+<div class="container-fluid" id="outer_container">
+    <div class="form-group col-md-10 col-md-offset-1 col-sm-10 col-sm-offset-1 col-xs-10 col-xs-offset-1" >
+        <div class="row">
+            <div class="panel panel-default "style="margin-top:1%;">
+                <form   class="form-inline" role="form"  name="myForm" style="margin-bottom:4%;margin-top:4%">
+                    <div class="text-center">
+                        <strong><h3 > Stock Market Search</h3></strong>
+                    </div>                  
+                    <div class="col-md-3 col-sm-3">
+                        <strong><p>Enter Stock Ticker Symbol:<span style="color:red">*</span></p></strong>
+                    </div>
+                    <div class="col-md-6 col-sm-6">
+                        
+                            <input  type="text" class="row col-md-12 col-sm-12 col-xs-12 input-sm" name="stockSYmbol" id="stockInput" placeholder="eg. AAPL" 
+                            (input)="inputCompanyName($event)" [(ngModel)]="value1" (focus)="focusOnInput()" (blur)="blurOutInput()" 
+                            [ngStyle]="borderColor" matInput [formControl]="myControl" [matAutocomplete]="auto"
+                             required #symbolInput>
+                            <mat-autocomplete  #auto="matAutocomplete">
+                                <mat-option  *ngFor="let option of symbol" [value]="option.Symbol" style="overflow:hidden">
+                                    {{option.Symbol}} - {{ option.Name }} ({{option.Exchange}})
+                                </mat-option>
+                            </mat-autocomplete>
+                            <div class="row">
+                                <p *ngIf="showHint" class="col-md-8 col-sm-8"><span> Please enter a stock ticker symbol.</span></p> 
+                            </div>
+                     
+                    </div> 
+                    <div class="col-md-offset-1 col-sm-offset-1">
+                        <button type = "submit" class="btn btn-primary" id="submit_btn" (click)='callServer2(getInputValue())' onclick="setTimeout('callServer(document.getElementById(\'stockInput\').value)', 0)" [disabled]="isInValid"><span class="glyphicon glyphicon-search"></span> <strong> Get Quote </strong></button> 
+                        <button type = "button" class="btn btn-default" id="clear_btn" (click)='animateright()' ><span class="glyphicon glyphicon-refresh"></span> <strong> Clear </strong></button>   
+                    </div>                  
+                </form>
+            </div>
+        </div>
+        <hr class="row">
+        <div [@slide1]='slide1' [hidden]='!showFirst' class="row panel panel-default" style="margin-top:4%;">
+            <br>
+            <div class="row panel panel-default col-md-10 col-md-offset-1 col-sm-8 col-sm-offset-2 col-xs-8 col-xs-offset-2" >
+                <div class="row panel-heading">
+                    <div class="col-md-4 col-sm-4">
+                        <strong><p class="panel-title">Favorite List</p></strong>
+                    </div>
+                    <div class="col-md-offset-3 col-md-5 col-sm-offset-4 col-sm-4">
+                        <label class="hidden-xs" id="labelReferesh" for="refresh_switch">Automatic Refresh:</label>
+                        <input id="refresh_switch" type="checkbox" data-toggle="toggle">
+                        <button id="refresh_btn" type = "button" class="btn btn-default" (click) = 'refresh();'>
+                        <span id="refresh_btn_label" class="glyphicon glyphicon-refresh"></span>
+                        </button>
+                        <button (click)='animateLeft();' id="nextPage_btn" type="button" class="btn btn-default" [disabled]="isInValid">
+                        <span class="glyphicon glyphicon-chevron-right" ></span></button>
+                    </div>
+                </div>
+                <div class="row">
+                        <div class="row panel-body">
+                                <div class="col-md-4 col-sm-4" >
+                                        <strong><p class="col-md-offset-1 col-md-4 col-sm-offset-1 col-sm-4">Sort by</p></strong>
+                                        <div class="input-group  col-md-7 col-sm-7">
+                                                <select id="select1" class="form-control" (click)='sequenceBySymbol()' (change)='selectChangeHandler1($event)'>
+                                                    <option >Default</option>
+                                                    <option >Symbol</option>
+                                                    <option>Price</option>
+                                                    <option>Change</option>
+                                                    <option>Change Percent</option>
+                                                    <option>Volume</option>
+                                                </select>
+                                        </div>   
+                                </div>
+                                <div class="col-md-4 col-sm-4">
+                                        <strong><p class="col-md-4 col-sm-4">Order</p></strong>
+                                        <div class="input-group  col-md-7 col-sm-7">
+                                                <select id="select2" class="form-control" (click)='sequenceBySymbol()' (change)='selectChangeHandler2($event)'>
+                                                        <option>Default</option>
+                                                        <option>Ascending</option>
+                                                        <option>Descending</option>
+                                                </select>
+                                        </div>
+                                </div>
+                        </div>
+                        <div class="row col-md-12 col-sm-10 col-xs-10 table-hover table-responsive">
+                                <table id='favoriteList' class="table table-striped  table-hover table-responsive" style="margin-left:2%">
+                                    <tr>
+                                        <th>Symbol</th>
+                                        <th>Stock Price</th>
+                                        <th>Change (Change Percent)</th>
+                                        <th>Volume</th>
+                                        <th>   </th>
+                                    </tr>
+                                </table>
+                        </div>
+                </div>
+            </div>
+        </div>
+
+        <div [@slide2]='slide2' [hidden]='showFirst' class="row panel panel-default" style="margin-top:4%;">
+            <br>
+            <div class="row panel panel-default col-md-10 col-md-offset-1 col-sm-8 col-sm-offset-2 col-xs-8 col-xs-offset-2" >
+                <div class="row panel-heading">
+                    <div class="col-md-3  col-sm-3">
+                        <button (click)='animateright();' type="button" class="btn btn-default">
+                        <span (click)='animateright();' class="glyphicon glyphicon-chevron-left"></span>
+                        </button>
+                    </div>
+                    <div class="col-md-offset-2 col-md-4 col-sm-offset-1 col-sm-4">
+                        <strong><p class="panel-title">Stock Details</p></strong>
+                    </div>
+                </div> 
+                <div class="row">
+                    <div class="row panel-body">
+                        <ul id="tabs" class="nav nav-pills" data-tabs="tabs" >
+                            <li id="currentStock" class="active stockClass" (click)="currentStock()" onclick="setTimeout('volume_chart1()', 5)" (click)="showCharts()"><a data-toggle="tab"><i
+                                class="glyphicon glyphicon-dashboard"> </i> <span
+                                class="ScreenHide">Current</span> Stock</a></li>
+                            <li id="historicalCharts" class="chartClass" (click)="historicalCharts()" onclick="setTimeout('History_chart()', 5) "><a data-toggle="tab"><i
+                                class="glyphicon glyphicon-stats" id="highStocks"> </i> <span
+                                class="ScreenHide">Historical</span>
+                                Charts</a></li>
+                            <li id="newsFeeds" class="feedClass" (click)="callNews(getInputValue())"><a data-toggle="tab"><i
+                                class="glyphicon glyphicon-link"> </i> <span class="ScreenHide">News</span>
+                                Feeds</a></li>
+                        </ul>
+
+                    </div>
+                </div>
+                <hr class="row">
+                <div *ngIf='showChart' id="historyChart" class="row">
+                    <div class="col-md-6">
+                        <div class="row col-md-12">
+                            <p class="row col-md-5"><strong>Stock Details</strong></p>
+                            <button id = "starBat" (click)="starChange()" class="row col-md-offset-4 col-md-1 col-xs-offset-4 col-xs-1 col-sm-offset-4 col-sm-1 btn btn-default"><span id="starElement" class="glyphicon glyphicon-star-empty" style="color:gold"></span></button>
+                            <button class="col-md-offset-1 col-md-1 col-xs-offset-1 col-xs-1 col-sm-offset-1 col-sm-1 btn btn-default"><img src="http://cs-server.usc.edu:45678/hw/hw8/images/facebook.png" height=20 width=20></button>
+                        </div>
+                        <div id="stockTable table-hover table-responsive">
+                                <div>
+                                    <br><br><br><br><br><br>
+                                    <div *ngIf="showprocess" class="progress" style="width: 80%;">
+                                        <div class="progress-bar progress-bar-striped active" roll="progressbar" 
+                                            aria-valuenow="50" aria-valuemin="0" aria-valuemax="100" style="width: 50%">
+                                        </div>
+                                    </div>
+                                </div>
+                                <table *ngIf="showtable" class="table table-striped table-hover table-responsive">
+                                        <tr>
+                                            <th>Stock Ticker Symbol</th>
+                                            <th>{{stockName}}</th>
+                                        </tr>
+                                        <tr>
+                                            <td><strong>Last Price</strong></td>
+                                            <td>{{closePrice[0] | number:'1.2-2'}}</td>
+                                        </tr>
+                                        <tr>
+                                            <td><strong>Change (Change Percent)</strong></td>
+                                            <td>{{priceChange | number:'1.2-2'}}({{changePercent | percent:'1.2-2'}})
+                                            <img src={{arrowImg}} width="10px" height="12px"></td>
+                                        </tr>
+                                        <tr>
+                                            <td><strong>Timestamp</strong></td>
+                                            <td>{{EDTtime}}</td>
+                                        </tr>
+                                        <tr>
+                                            <td><strong>Open</strong></td>
+                                            <td>{{openPrice[0] | number:'1.2-2'}}</td>
+                                        </tr>
+                                        <tr>
+                                            <td><strong>Previous Close</strong></td>
+                                            <td>{{lastPrice | number:'1.2-2'}}</td>
+                                        </tr>
+                                        <tr>
+                                            <td><strong>Day's Range</strong></td>
+                                            <td>{{lowPrice[0] | number:'1.2-2'}} - {{highPrice[0] | number:'1.2-2'}}</td>
+                                        </tr>
+                                        <tr>
+                                            <td><strong>Volume</strong></td>
+                                            <td>{{stockVolume[0]}}</td>
+                                        </tr>
+                                    </table>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="container-fluid">
+                            <ul class="nav nav-tabs">
+                                <li id="chart1" role="presentation" class="active" (click)="chart1Navigation()" onclick="volume_chart1()" ><a>Price</a></li>
+                                <li id="chart2" role="presentation" (click)="chart2Navigation()" onclick="callIndicator('SMA',getElementById('stockInput').value)"><a>SMA</a></li>
+                                <li id="chart3" role="presentation" (click)="chart3Navigation()" onclick="callIndicator('EMA',getElementById('stockInput').value)"><a>EMA</a></li>
+                                <li id="chart4" role="presentation" (click)="chart4Navigation()" onclick="callIndicator('STOCH',getElementById('stockInput').value)"><a>STOCH</a></li>
+                                <li id="chart5" role="presentation" (click)="chart5Navigation()" onclick="callIndicator('RSI',getElementById('stockInput').value)"><a>RSI</a></li>
+                                <li id="chart6" role="presentation" (click)="chart6Navigation()" onclick="callIndicator('ADX',getElementById('stockInput').value)"><a>ADX</a></li>
+                                <li id="chart7" role="presentation" (click)="chart7Navigation()" onclick="callIndicator('CCI',getElementById('stockInput').value)"><a>CCI</a></li>
+                                <li id="chart8" role="presentation" (click)="chart8Navigation()" onclick="callIndicator('BBANDS',getElementById('stockInput').value)"><a>BBANDS</a></li>
+                                <li id="chart9" role="presentation" (click)="chart9Navigation()" onclick="callIndicator('MACD',getElementById('stockInput').value)"><a>MACD</a></li>
+                            </ul>
+                        </div>
+                        <div id="chartProcess" class="container-fluid">
+                            <div id='Chart img-reponsive'>
+                                <br><br><br><br><br><br>
+                                <div class="progress" style="width: 80%;">
+                                    <div class="progress-bar progress-bar-striped active" roll="progressbar" 
+                                        aria-valuenow="50" aria-valuemin="0" aria-valuemax="100" style="width: 50%">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div *ngIf='showHistoryChart' id="historyChartArea" class="row" style="padding-right: 2%;">
+                     <br> <br> <br> <br> <br> <br> <br> <br> <br> <br> <br> <br> <br> <br> <br> <br> <br> <br> <br> <br> <br>
+                </div>
+                <div *ngIf='showNews' id="newsTable" class="row">
+                    <div style="background-color: #EAEAEA" class="row panel panel-default col-md-10 col-md-offset-1 col-sm-8 col-sm-offset-2 col-xs-8 col-xs-offset-2" >
+                        <a target='_blank' href={{newsLink[0]}} style='color:blue;text-decoration:none;'><h4>{{newsTitle[0]}}</h4></a>
+                        Author: {{newsAuthor[0]}}<br>
+                        Date: {{newsDate[0]}}
+                    </div>
+                    <div style="background-color: #EAEAEA" class="row panel panel-default col-md-10 col-md-offset-1 col-sm-8 col-sm-offset-2 col-xs-8 col-xs-offset-2" >
+                        <a target='_blank' href={{newsLink[1]}} style='color:blue;text-decoration:none;'><h4>{{newsTitle[1]}}</h4></a>
+                        Author: {{newsAuthor[1]}}<br>
+                        Date: {{newsDate[1]}}
+                    </div>
+                    <div style="background-color: #EAEAEA" class="row panel panel-default col-md-10 col-md-offset-1 col-sm-8 col-sm-offset-2 col-xs-8 col-xs-offset-2" >
+                        <a target='_blank' href={{newsLink[2]}} style='color:blue;text-decoration:none;'><h4>{{newsTitle[2]}}</h4></a>
+                        Author: {{newsAuthor[2]}}<br>
+                        Date: {{newsDate[2]}}
+                    </div>
+                    <div style="background-color: #EAEAEA" class="row panel panel-default col-md-10 col-md-offset-1 col-sm-8 col-sm-offset-2 col-xs-8 col-xs-offset-2" >
+                        <a target='_blank' href={{newsLink[3]}} style='color:blue;text-decoration:none;'><h4>{{newsTitle[3]}}</h4></a>
+                        Author: {{newsAuthor[3]}}<br>
+                        Date: {{newsDate[3]}}
+                    </div>
+                    <div style="background-color: #EAEAEA" class="row panel panel-default col-md-10 col-md-offset-1 col-sm-8 col-sm-offset-2 col-xs-8 col-xs-offset-2" >
+                        <a target='_blank' href={{newsLink[4]}} style='color:blue;text-decoration:none;'><h4>{{newsTitle[4]}}</h4></a>
+                        Author: {{newsAuthor[4]}}<br>
+                        Date: {{newsDate[4]}}
+                    </div>
+                </div>
+            </div>    
+        </div>
+    </div>  
+  </div>
+
+  
+
+  
+
+
+  
